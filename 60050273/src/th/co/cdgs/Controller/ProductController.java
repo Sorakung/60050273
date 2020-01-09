@@ -18,32 +18,30 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import th.co.cdgs.bean.CustomerDto;
-
-@Path("customer")
-public class CustomerController {
-
+import th.co.cdgs.bean.ProductDto;
+@Path("product")
+public class ProductController {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getCustomer() {
-		List<CustomerDto> list = new ArrayList<>();
+	public Response getProduct() {
+		List<ProductDto> list = new ArrayList<>();
 		ResultSet rs = null;
 		PreparedStatement pst = null;
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/workshop","root","p@ssw0rd");
-			pst = conn.prepareStatement("SELECT customer_Id,"+"CONCAT(first_name,'',last_name)as Full_name,"
-			+"address,tel,email FROM customer");
+			pst = conn.prepareStatement("SELECT product_Id,"+"product_name,"
+			+"product_desc,price,active FROM product");
 			rs = pst.executeQuery();
-			CustomerDto customerDto = null;
+			ProductDto productDto = null;
 			while(rs.next()) {
-				customerDto = new CustomerDto();
-				customerDto.setCustomerId(rs.getLong("customer_id"));
-				customerDto.setFullName(rs.getString("Full_name"));
-				customerDto.setAddress(rs.getString("address"));
-				customerDto.setTel(rs.getString("tel"));
-				customerDto.setEmail(rs.getString("email"));
-				list.add(customerDto);
+				productDto = new ProductDto();
+				productDto.setProductid(rs.getLong("product_id"));
+				productDto.setProductname(rs.getString("product_name"));
+				productDto.setProductdesc(rs.getString("product_desc"));
+				productDto.setPrice(rs.getLong("price"));
+				productDto.setActive(rs.getString("active"));
+				list.add(productDto);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -73,20 +71,19 @@ public class CustomerController {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createCustomer(CustomerDto customer) {
+	public Response createProduct(ProductDto product) {
 		ResultSet rs = null;
 		PreparedStatement pst = null;
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/workshop","root","p@ssw0rd");
-			pst = conn.prepareStatement("INSERT INTO customer  (first_name ,last_name,address,tel , email)"
-			+"VALUES (? ,? ,? ,? ,?)");
+			pst = conn.prepareStatement("INSERT INTO product  (product_name ,product_desc,price,active)"
+			+"VALUES (? ,? ,? ,?)");
 			int index = 1;
-			pst.setString(index++, customer.getFirstName());
-			pst.setString(index++, customer.getLastName());
-			pst.setString(index++, customer.getAddress());
-			pst.setString(index++, customer.getTel());
-			pst.setString(index++, customer.getEmail());
+			pst.setString(index++, product.getProductname());
+			pst.setString(index++, product.getProductdesc());
+			pst.setLong(index++, product.getPrice());
+			pst.setString(index++, product.getActive());
 			pst.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -112,31 +109,29 @@ public class CustomerController {
 				e.printStackTrace();
 			}}
 		}
-		return Response.status(Status.CREATED).entity(customer).build();
+		return Response.status(Status.CREATED).entity(product).build();
 	}
 	@PUT
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response updateCustomer(CustomerDto customer) {
+	public Response updateProduct(ProductDto product) {
 		ResultSet rs = null;
 		PreparedStatement pst = null;
 		Connection conn = null;
 		try {
 			conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/workshop","root","p@ssw0rd");
-			pst = conn.prepareStatement("UPDATE customer  SET " + 
-					"first_name  = ? ," + 
-					"last_name = ? ," + 
-					"address = ? ," + 
-					"tel= ?  ," + 
-					"email = ?" + 
-					"WHERE customer_Id = ?");
+			pst = conn.prepareStatement("UPDATE product  SET " + 
+					"product_name  = ? ," + 
+					"product_desc = ? ," + 
+					"price = ? ," + 
+					"active= ?  ," + 
+					"WHERE product_Id = ?");
 			int index = 1;
-			pst.setString(index++, customer.getFirstName());
-			pst.setString(index++, customer.getLastName());
-			pst.setString(index++, customer.getAddress());
-			pst.setString(index++, customer.getTel());
-			pst.setString(index++, customer.getEmail());
-			pst.setLong(index++, customer.getCustomerId());
+			pst.setString(index++, product.getProductname());
+			pst.setString(index++, product.getProductdesc());
+			pst.setLong(index++, product.getPrice());
+			pst.setString(index++, product.getActive());
+			pst.setLong(index++, product.getProductid());
 			pst.executeUpdate();
 			
 		} catch (SQLException e) {
@@ -162,12 +157,12 @@ public class CustomerController {
 				e.printStackTrace();
 			}}
 		}
-		return Response.status(Status.OK).entity(customer).build();
+		return Response.status(Status.OK).entity(product).build();
 	}
 	@DELETE
 	@Path("{id}")
 	
-	public Response deleteCustomer(@PathParam("id")Long customerId) {
+	public Response deleteProduct(@PathParam("id")Long productid) {
 		ResultSet rs = null;
 		PreparedStatement pst = null;
 		Connection conn = null;
@@ -176,7 +171,7 @@ public class CustomerController {
 			pst = conn.prepareStatement("DELETE FROM customer WHERE customer_Id = ?");
 			int index = 1;
 			
-			pst.setLong(index++, customerId);
+			pst.setLong(index++, productid);
 			pst.executeUpdate();
 			
 		} catch (SQLException e) {
